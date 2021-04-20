@@ -29,11 +29,6 @@ async def process_help_command(message: types.Message):
     )
 
 
-# @dp.message_handler()
-# async def echo_message(msg: types.Message):
-#    await bot.send_message(msg.from_user.id, msg.text)
-
-
 @dp.callback_query_handler(lambda c: c.data)
 async def process_callback_keyboard(
         callback_query: types.CallbackQuery):
