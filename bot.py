@@ -29,7 +29,7 @@ async def process_help_command(message: types.Message):
 
 @dp.message_handler(commands=['currency'])
 async def process_command_list(message: types.Message):
-    await message.reply("Отправляю все возможные кнопки", reply_markup=kb.inline_keyboard)
+    await message.reply("Выбери крипту :)", reply_markup=kb.inline_keyboard)
 
 
 if __name__ == '__main__':
