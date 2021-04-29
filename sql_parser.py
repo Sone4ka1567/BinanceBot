@@ -14,3 +14,12 @@ class SQLParser:
            value FLOAT);
         """)
         conn.commit()
+
+    def get_all(self):
+        pass
+
+    def add(self, data):
+        conn = sqlite3.connect(self.bd_name)
+        cur = conn.cursor()
+        cur.execute("INSERT INTO orders VALUES(?, ?, ?, ?, ?);", data)
+        conn.commit()
