@@ -25,7 +25,9 @@ async def process_help_command(message: types.Message):
     await bot.send_message(
         message.from_user.id,
         text="Send /currency and choose crypto,"
-             "I'll tell you its cost in $ at this moment!"
+             "I'll tell you its cost in $ at this moment!\n"
+             "Or send me two currencies from the website in such format:\n"
+             "Currency1/Currency2"
     )
 
 
@@ -71,6 +73,19 @@ async def process_command_list(message: types.Message):
         message.from_user.id,
         text="Choose crypto and I'll tell you its worth in $ :)",
         reply_markup=kb.inline_keyboard
+    )
+
+
+@dp.message_handler()
+async def process_text_request(message: types.Message):
+    ind_of_slash = message.text.find("/")
+    first_cur = message.text[:ind_of_slash]
+    sec_cur = message.text[ind_of_slash + 1:]
+    req = message.text.replace("/", "")
+    await bot.send_message(
+        message.from_user.id,
+        text=(first_cur + ' is worth ' + str(
+                get_current_price(req) + " " + sec_cur))
     )
 
 
