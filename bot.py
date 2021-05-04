@@ -49,7 +49,7 @@ async def process_callback_keyboard(callback_query: types.CallbackQuery):
 
     if code == 'usdt':
 
-        bd.add((callback_query.from_user.id, str(datetime.now()),
+        bd.add((callback_query.from_user.id, str(datetime.now().strftime("%d-%m-%Y %H:%M:%S")),
                 'USDT', 'RUB', get_current_price('USDTRUB')))
 
         await bot.send_message(
@@ -60,7 +60,7 @@ async def process_callback_keyboard(callback_query: types.CallbackQuery):
 
     else:
 
-        bd.add((callback_query.from_user.id, str(datetime.now()),
+        bd.add((callback_query.from_user.id, str(datetime.now().strftime("%d-%m-%Y %H:%M:%S")),
                 code.upper(), 'USDT', get_current_price(code.upper() + 'USDT')))
 
         await bot.send_message(
@@ -89,8 +89,8 @@ async def process_text_request(message: types.Message):
 
     if check_availability(req):
 
-        bd.add((message.from_user.id, str(datetime.now()), first_cur, sec_cur,
-                get_current_price(req)))
+        bd.add((message.from_user.id, str(datetime.now().strftime("%d-%m-%Y %H:%M:%S")), first_cur,
+                sec_cur, get_current_price(req)))
 
         await bot.send_message(
             message.from_user.id,
@@ -100,8 +100,8 @@ async def process_text_request(message: types.Message):
 
     elif check_availability(sec_cur + first_cur):
 
-        bd.add((message.from_user.id, str(datetime.now()), first_cur, sec_cur,
-                str(1 / float(get_current_price(sec_cur + first_cur)))))
+        bd.add((message.from_user.id, str(datetime.now().strftime("%d-%m-%Y %H:%M:%S")), first_cur,
+                sec_cur, str(1 / float(get_current_price(sec_cur + first_cur)))))
 
         await bot.send_message(
             message.from_user.id,
