@@ -80,13 +80,13 @@ async def process_command_list(message: types.Message):
 @dp.message_handler()
 async def process_text_request(message: types.Message):
     ind_of_slash = message.text.find("/")
-    first_cur = message.text[:ind_of_slash]
-    sec_cur = message.text[ind_of_slash + 1:]
+    first_cur = message.text[:ind_of_slash].upper()
+    sec_cur = message.text[ind_of_slash + 1:].upper()
     req = message.text.replace("/", "")
     await bot.send_message(
         message.from_user.id,
         text=(first_cur + ' is worth ' + str(
-                get_current_price(req) + " " + sec_cur))
+                get_current_price(req.upper()) + " " + sec_cur))
     )
 
 
