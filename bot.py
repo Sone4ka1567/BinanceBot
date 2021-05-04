@@ -1,8 +1,9 @@
 import logging
-from sql_parser import SQLParser
+from datetime import datetime
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
+from sql_parser import SQLParser
 from config import TOKEN
 import keyboards as kb
 from current_price import get_current_price, check_availability
@@ -11,6 +12,7 @@ logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
+bd = SQLParser()
 
 
 @dp.message_handler(commands=['start'])
@@ -32,17 +34,35 @@ async def process_help_command(message: types.Message):
     )
 
 
+@dp.message_handler(commands=['history'])
+async def return_history(message: types.Message):
+    await bot.send_message(
+        message.from_user.id,
+        text=bd.get_all(message.from_user.id)
+    )
+
+
 @dp.callback_query_handler(lambda c: c.data)
-async def process_callback_keyboard(
-        callback_query: types.CallbackQuery):
+async def process_callback_keyboard(callback_query: types.CallbackQuery):
+
     code = callback_query.data
+
     if code == 'usdt':
+
+        bd.add((callback_query.from_user.id, str(datetime.now()),
+                'USDT', 'RUB', get_current_price('USDTRUB')))
+
         await bot.send_message(
             callback_query.from_user.id,
             text=('USDT is worth ' + str(
                 get_current_price('USDTRUB') + '₽'))
         )
+
     else:
+
+        bd.add((callback_query.from_user.id, str(datetime.now()),
+                code.upper(), 'USDT', get_current_price(code.upper() + 'USDT')))
+
         await bot.send_message(
             callback_query.from_user.id,
             text=(code.upper() + ' is worth ' + str(
@@ -61,20 +81,32 @@ async def process_command_list(message: types.Message):
 
 @dp.message_handler()
 async def process_text_request(message: types.Message):
+
     ind_of_slash = message.text.find("/")
     first_cur = message.text[:ind_of_slash].upper()
     sec_cur = message.text[ind_of_slash + 1:].upper()
     req = message.text.replace("/", "").upper()
+
     if check_availability(req):
+
+        bd.add((message.from_user.id, str(datetime.now()), first_cur, sec_cur,
+                get_current_price(req)))
+
         await bot.send_message(
             message.from_user.id,
             text=(first_cur + ' is worth ' + str(
                     get_current_price(req) + " " + sec_cur))
         )
+
     elif check_availability(sec_cur + first_cur):
+
+        bd.add((message.from_user.id, str(datetime.now()), first_cur, sec_cur,
+                str(1 / float(get_current_price(sec_cur + first_cur)))))
+
         await bot.send_message(
             message.from_user.id,
-            text=(first_cur + ' is worth ' + str(1 / float(get_current_price(sec_cur + first_cur))) + " " + sec_cur)
+            text=(first_cur + ' is worth ' +
+                  str(1 / float(get_current_price(sec_cur + first_cur))) + " " + sec_cur)
         )
 
     else:
@@ -83,6 +115,7 @@ async def process_text_request(message: types.Message):
             text="Couldn't find anything similar :((,\n"
                  " maybe you should try smth different?"
         )
+
 
 if __name__ == '__main__':
     executor.start_polling(dp)

@@ -7,14 +7,15 @@ class SQLParser:
         self.table = 'orders'
         conn = sqlite3.connect(self.bd_name)
         cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS orders(
-           userid INT PRIMARY KEY,
+        cur.execute("""CREATE TABLE IF NOT EXISTS """ + self.table + """ (
+           userid INT,
            date TEXT,
            currency1 TEXT,
            currency2 TEXT,
            value FLOAT);
         """)
         conn.commit()
+        conn.close()
 
     def get_all(self, user_id, columns=('date', 'currency1', 'currency2', 'value')):
         conn = sqlite3.connect(self.bd_name)
@@ -31,5 +32,6 @@ class SQLParser:
     def add(self, data):
         conn = sqlite3.connect(self.bd_name)
         cur = conn.cursor()
-        cur.execute("INSERT INTO orders VALUES(?, ?, ?, ?, ?);", data)
+        cur.execute("INSERT INTO " + self.table + " VALUES(?, ?, ?, ?, ?);", data)
         conn.commit()
+        conn.close()
