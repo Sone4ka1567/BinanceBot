@@ -1,4 +1,6 @@
 import sqlite3
+import pandas as pd
+from IPython.display import display
 
 
 class SQLParser:
@@ -27,7 +29,19 @@ class SQLParser:
                                                        f"FROM {self.table} WHERE "
                                                        f"userid = '{user_id}'")])
         conn.close()
-        return output
+
+        res = []
+        for dt, cur1, cur2, val in zip(output[0], output[1], output[2], output[3]):
+            new_line = {
+                'date': dt,
+                'currency1': cur1,
+                'currency2': cur2,
+                'value': val
+            }
+            res.append(new_line)
+
+        frame = pd.DataFrame(res)
+        return frame.to_string()
 
     def add(self, data):
         conn = sqlite3.connect(self.bd_name)
