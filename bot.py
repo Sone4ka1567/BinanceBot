@@ -5,7 +5,7 @@ from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
 from config import TOKEN
 import keyboards as kb
-from current_price import get_current_price
+from current_price import get_current_price, check_availability
 
 logging.basicConfig(level=logging.INFO)
 
@@ -36,35 +36,17 @@ async def process_help_command(message: types.Message):
 async def process_callback_keyboard(
         callback_query: types.CallbackQuery):
     code = callback_query.data
-    if code == 'btc':
-        await bot.send_message(
-            callback_query.from_user.id,
-            text=('BTC is worth ' + str(
-                get_current_price('BTCUSDT') + '$'))
-        )
-    elif code == 'bnb':
-        await bot.send_message(
-            callback_query.from_user.id,
-            text=('BNB is worth ' + str(
-                get_current_price('BNBUSDT') + '$'))
-        )
-    elif code == 'eth':
-        await bot.send_message(
-            callback_query.from_user.id,
-            text=('ETH is worth ' + str(
-                get_current_price('ETHUSDT') + '$'))
-        )
-    elif code == 'ltc':
-        await bot.send_message(
-            callback_query.from_user.id,
-            text=('LTC is worth ' + str(
-                get_current_price('LTCUSDT') + '$'))
-        )
-    elif code == 'usdt':
+    if code == 'usdt':
         await bot.send_message(
             callback_query.from_user.id,
             text=('USDT is worth ' + str(
                 get_current_price('USDTRUB') + '₽'))
+        )
+    else:
+        await bot.send_message(
+            callback_query.from_user.id,
+            text=(code.upper() + ' is worth ' + str(
+                get_current_price(code.upper() + 'USDT') + '$'))
         )
 
 
@@ -82,13 +64,25 @@ async def process_text_request(message: types.Message):
     ind_of_slash = message.text.find("/")
     first_cur = message.text[:ind_of_slash].upper()
     sec_cur = message.text[ind_of_slash + 1:].upper()
-    req = message.text.replace("/", "")
-    await bot.send_message(
-        message.from_user.id,
-        text=(first_cur + ' is worth ' + str(
-                get_current_price(req.upper()) + " " + sec_cur))
-    )
+    req = message.text.replace("/", "").upper()
+    if check_availability(req):
+        await bot.send_message(
+            message.from_user.id,
+            text=(first_cur + ' is worth ' + str(
+                    get_current_price(req) + " " + sec_cur))
+        )
+    elif check_availability(sec_cur + first_cur):
+        await bot.send_message(
+            message.from_user.id,
+            text=(first_cur + ' is worth ' + str(1 / float(get_current_price(sec_cur + first_cur))) + " " + sec_cur)
+        )
 
+    else:
+        await bot.send_message(
+            message.from_user.id,
+            text="Couldn't find anything similar :((,\n"
+                 " maybe you should try smth different?"
+        )
 
 if __name__ == '__main__':
     executor.start_polling(dp)
