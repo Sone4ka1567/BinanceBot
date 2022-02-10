@@ -1,6 +1,5 @@
 import sqlite3
 import pandas as pd
-from IPython.display import display
 
 
 class SQLParser:

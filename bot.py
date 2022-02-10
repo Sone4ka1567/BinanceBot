@@ -8,6 +8,7 @@ from config import TOKEN
 import keyboards as kb
 from current_price import get_current_price, check_availability
 
+
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=TOKEN)
